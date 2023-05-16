@@ -12,7 +12,7 @@ class Store {
   eraseJobs(){
     return fs.writeFileSync(this.path_jobs, '[]');
   }
-  createStoreFile = (path,default_value) => {
+  createStoreFile(path,default_value){
     if(!fs.existsSync(path)) fs.writeFileSync(path, default_value);
   }
   getJobs(){
