@@ -1,7 +1,7 @@
 # LinkedIn Job Scraper
 This project includes 1) A web scraper for Linkedin that retrieves job postings, 2) an API server to get postings and companies from store files, and 3) a front-end to view postings and remove companies.
 
-The intention of this project is allow a job seeker more control over viewing job postings that are not relevant by allowing selected companies to be filtered out from results. It is not intended as means of data mining or harvesting.
+The intention of this project is allow a job seeker more control over viewing job postings that are not relevant to them by allowing selected companies to be filtered out from results. It is not intended as means of automated data mining.
 
 ## Commands
 Action | Command
