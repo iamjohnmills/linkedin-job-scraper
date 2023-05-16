@@ -1,0 +1,83 @@
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Linkedin Jobs</title>
+    <style>
+      * { box-sizing: border-box;}
+      html,body { font-family: system-ui; line-height: 1.2; }
+      .company { margin-bottom: 20px; }
+      .company-title { display: flex; align-items: center;  }
+      .company-title > span { margin-right: 10px; font-size: 22px;}
+      .job { margin-bottom: 10px;}
+      .job a { font-size: 16px;}
+      .location { font-size: 12px; }
+      .jobs { padding: 30px; }
+      .button-remove { font-weight: bold; padding: 3px 5px; border-radius: 4px; background-color: #fff; border: 1px solid #ccc; text-transform: uppercase; font-size: 10px; color: #666 }
+    </style>
+    <script>
+      const createNode = (options) => {
+        const node = document.createElement(options.tag);
+        if(options.className) node.setAttribute('class',options.className);
+        if(options.innerHTML) node.innerHTML = options.innerHTML;
+        if(options.attributes) Object.keys(options.attributes).forEach(key => node.setAttribute(key,options.attributes[key]) );
+        if(options.style) Object.keys(options.style).forEach(key => node.style[key] = options.style[key]);
+        if(options.event_listeners) Object.keys(options.event_listeners).forEach(key => node.addEventListener(key,options.event_listeners[key]) )
+        if(options.root) options.root.appendChild(node);
+        return node;
+      }
+      const xhrURL = (options) => new Promise(resolve => {
+        const xhr = new XMLHttpRequest();
+        xhr.addEventListener('load', () => resolve(xhr.responseText) );
+        xhr.addEventListener('error', () => resolve(false) );
+        xhr.open(options.method ? options.method : 'GET', options.url);
+        if(options.content_type) xhr.setRequestHeader('Content-type', options.content_type);
+        let params;
+        if(options.params) params = JSON.stringify(options.params);
+        xhr.send(params ? params : null);
+      });
+      class App {
+        constructor(){
+          document.addEventListener('DOMContentLoaded',this.handleReady.bind(this));
+          document.addEventListener('click',this.handleDocumentClick.bind(this));
+        }
+        handleReady(event){
+          this.els = {};
+          this.els.root = document.getElementById('root');
+          this.fetchJobs();
+        }
+        async handleDocumentClick(event){
+          const on_remove_company = event.target.closest('button[data-company]');
+          if(on_remove_company){
+            const company_name = on_remove_company.dataset.company;
+            const response = await fetch('/badcompany', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ company: company_name }),
+            });
+            event.target.closest('.company').remove();
+          }
+        }
+        async fetchJobs(){
+          const response = await xhrURL({ url: '/jobs' });
+          this.jobs = JSON.parse(response);
+          this.els.jobs = createNode({ root: this.els.root, tag: 'div', className: 'jobs' })
+          for(const company of Object.keys(this.jobs)){
+            const company_el = createNode({ root: this.els.jobs, tag: 'div', className: 'company' });
+            const company_title_el = createNode({ root: company_el, tag: 'div', className: 'company-title', innerHTML: `<span>${company}</span><button class="button-remove" data-company="${company}">Remove</button>` });
+            const company_jobs_el = createNode({ root: company_el, tag: 'div', className: 'company-jobs' });
+            for(const job of this.jobs[company]){
+              const job_el = createNode({ root: company_jobs_el, tag: 'div', className: 'job', innerHTML: `
+              <a href="${job.link}" target="_blank">${job.title}</a>
+              <div class="location">${job.location}</div>
+              ` });
+            }
+          }
+        }
+      }
+      const app = new App();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>
